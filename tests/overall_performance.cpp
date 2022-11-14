@@ -29,7 +29,7 @@
 #endif
 
 #define Merge_Size 1000000
-#define NUM_INSERT_THREADS 64
+#define NUM_INSERT_THREADS 16
 #define NUM_SEARCH_THREADS 10
 
 int            begin_time = 0;
@@ -49,27 +49,27 @@ void ShowMemoryStatus() {
 
   std::cout << "memory current time: " << current_time << " RSS : " << rss
             << " KB" << std::endl;
-  char           dir[] = "/home/yuming/ssdfile/store_diskann_100m";
-  DIR*           dp;
-  struct dirent* entry;
-  struct stat    statbuf;
-  long           dir_size = 0;
+  // char           dir[] = "/home/yuming/ssdfile/store_diskann_100m";
+  // DIR*           dp;
+  // struct dirent* entry;
+  // struct stat    statbuf;
+  // long           dir_size = 0;
 
-  if ((dp = opendir(dir)) == NULL) {
-    fprintf(stderr, "Cannot open dir: %s\n", dir);
-    exit(0);
-  }
+  // if ((dp = opendir(dir)) == NULL) {
+  //   fprintf(stderr, "Cannot open dir: %s\n", dir);
+  //   exit(0);
+  // }
 
-  chdir(dir);
+  // chdir(dir);
 
-  while ((entry = readdir(dp)) != NULL) {
-    lstat(entry->d_name, &statbuf);
-    dir_size += statbuf.st_size;
-  }
-  chdir("..");
-  closedir(dp);
-  dir_size /= (1024 * 1024);
-  std::cout << "disk usage : " << dir_size << " MB" << std::endl;
+  // while ((entry = readdir(dp)) != NULL) {
+  //   lstat(entry->d_name, &statbuf);
+  //   dir_size += statbuf.st_size;
+  // }
+  // chdir("..");
+  // closedir(dp);
+  // dir_size /= (1024 * 1024);
+  // std::cout << "disk usage : " << dir_size << " MB" << std::endl;
 }
 
 std::string convertFloatToString(const float value, const int precision = 0) {
