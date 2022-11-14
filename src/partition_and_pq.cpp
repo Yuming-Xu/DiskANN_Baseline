@@ -985,7 +985,7 @@ template void DISKANN_DLLEXPORT gen_random_slice<float>(
     double sampling_rate, size_t offset);
 
 template void DISKANN_DLLEXPORT
-              gen_random_slice<float>(const float *inputdata, size_t npts, size_t ndims,
+                                gen_random_slice<float>(const float *inputdata, size_t npts, size_t ndims,
                         double p_val, float *&sampled_data, size_t &slice_size);
 template void DISKANN_DLLEXPORT gen_random_slice<uint8_t>(
     const uint8_t *inputdata, size_t npts, size_t ndims, double p_val,

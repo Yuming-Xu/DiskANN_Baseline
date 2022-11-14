@@ -86,4 +86,7 @@ add_executable(test_incr_intf test_incr_intf.cpp)
 	target_link_libraries(test_incr_intf debug ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/nsg_dll.lib)
 	target_link_libraries(test_incr_intf optimized ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE}/nsg_dll.lib)
 endif()
+
+add_executable(overall_performance overall_performance.cpp)
+	target_link_libraries(overall_performance ${PROJECT_NAME} -ltcmalloc aio)
 # formatter

@@ -92,7 +92,7 @@ namespace diskann {
     _beamwidth = parameters.Get<uint32_t>("beamwidth");
     _num_nodes_to_cache = parameters.Get<_u32>("nodes_to_cache");
 
-    _search_tpool = new ThreadPool(_num_search_threads);
+    // _search_tpool = new ThreadPool(_num_search_threads);
 
     _mem_index_prefix = mem_prefix;
     _deleted_tags_file = mem_prefix + "_deleted.tags";
@@ -289,9 +289,9 @@ namespace diskann {
         std::vector<Neighbor_Tag<TagT>> best_vec;
         for(auto iter : best)
             best_vec.emplace_back(iter);
-//        std::sort(best_vec.begin(), best_vec.end());
+       std::sort(best_vec.begin(), best_vec.end());
         if (best_vec.size() > K)
-//          best_vec.erase(best_vec.begin() + K, best_vec.end());
+         best_vec.erase(best_vec.begin() + K, best_vec.end());
         //aggregate results, sort and pick top K candidates
     {
       std::shared_lock<std::shared_timed_mutex> lock(_delete_lock);

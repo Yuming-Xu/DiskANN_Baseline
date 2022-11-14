@@ -139,7 +139,6 @@ inline void open_file_to_write(std::ofstream&     writer,
     writer.open(filename, std::ios::binary | std::ios::out);
   else
     writer.open(filename, std::ios::binary | std::ios::in | std::ios::out);
-
   if (writer.fail()) {
     diskann::cerr << std::string("Failed to open file") + filename +
                          " for write because "

@@ -28,7 +28,7 @@
 
 #include "windows_customizations.h"
 
-#define MERGE_TH 18000000
+#define MERGE_TH 30000000
 
 namespace diskann {
 

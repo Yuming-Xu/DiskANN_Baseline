@@ -140,7 +140,7 @@ void seed_iter(tsl::robin_set<uint32_t> &active_set,
 #ifndef _WINDOWS
   std::cout << "ITER: end = " << active_set.size() << ", "
             << inactive_set.size() << "\n";
-  malloc_stats();
+  // malloc_stats();
 #endif
 }
 
@@ -258,12 +258,12 @@ void search_kernel(diskann::MergeInsert<T> &       merge_insert,
   float *   gt_dists = nullptr;
   size_t    query_num, query_dim, query_aligned_dim, gt_num, gt_dim;
 
-  const std::string temp = "/mnt/t-adisin/sift_query.bin";
-  std::cout << "Loading query : " << temp << std::endl;
+  // const std::string temp = "/mnt/t-adisin/sift_query.bin";
+  std::cout << "Loading query : " << ::query_file << std::endl;
   // load query + truthset
-  diskann::load_aligned_bin<T>(temp, query, query_num, query_dim,
+  diskann::load_aligned_bin<T>(::query_file, query, query_num, query_dim,
                                query_aligned_dim);
-  std::cout << "Loaded query : " << temp << std::endl;
+  std::cout << "Loaded query : " << ::query_file << std::endl;
   diskann::load_truthset(::truthset_file, gt_ids, gt_dists, gt_num, gt_dim,
                          &gt_tags);
   std::cout << "Loaded gt" << std::endl;
@@ -478,8 +478,15 @@ void run_iter(diskann::MergeInsert<T> & merge_insert,
   std::future_status merge_status;
   do {
     merge_status = ::merge_future.wait_for(std::chrono::milliseconds(1));
-    std::cout << "Search at " << ::global_timer.elapsed() / 1000000
-              << " seconds " << std::endl;
+    if (merge_status == std::future_status::timeout)
+      std::cout << "Search at " << ::global_timer.elapsed() / 1000000
+                << " seconds : merge_status: timeout" << std::endl;
+    if (merge_status == std::future_status::deferred)
+      std::cout << "Search at " << ::global_timer.elapsed() / 1000000
+                << " seconds : merge_status: deferred" << std::endl;
+    else
+      std::cout << "Search at " << ::global_timer.elapsed() / 1000000
+                << " seconds : merge_status: ready" << std::endl;
     search_kernel<T>(merge_insert, active_set);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));

@@ -35,6 +35,7 @@
 #endif
 
 #define SECTOR_LEN 4096
+#define IO_LIMIT 40
 
 #define READ_U64(stream, val) stream.read((char *) &val, sizeof(_u64))
 #define READ_U32(stream, val) stream.read((char *) &val, sizeof(_u32))
@@ -1047,7 +1048,7 @@ namespace diskann {
     std::vector<std::pair<unsigned, std::pair<unsigned, unsigned *>>>
         cached_nhoods;
 
-    while (k < cur_list_size) {
+    while (k < cur_list_size && num_ios < IO_LIMIT) {
       auto nk = cur_list_size;
       // clear iteration state
       frontier.clear();

@@ -128,9 +128,9 @@ namespace diskann {
 
     // implemented
     DISKANN_DLLEXPORT size_t
-                      cached_beam_search(const T *query, const _u64 k_search, const _u64 l_search,
-                                         TagT *res_tags, float *res_dists, const _u64 beam_width,
-                                         QueryStats *stats = nullptr);
+    cached_beam_search(const T *query, const _u64 k_search, const _u64 l_search,
+                       TagT *res_tags, float *res_dists, const _u64 beam_width,
+                       QueryStats *stats = nullptr);
 
     DISKANN_DLLEXPORT size_t cached_beam_search_ids(
         const T *query, const _u64 k_search, const _u64 l_search,

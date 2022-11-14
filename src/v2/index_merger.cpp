@@ -25,9 +25,9 @@
 // max number of points per mem index being merged -- 32M
 #define MAX_PTS_PER_MEM_INDEX (uint64_t)(1 << 25)
 #define INDEX_OFFSET (uint64_t)(MAX_PTS_PER_MEM_INDEX * 4)
-#define MAX_INSERT_THREADS (uint64_t) 18
-#define MAX_N_THREADS (uint64_t) 18
-#define NUM_INDEX_LOAD_THREADS (uint64_t) 18
+#define MAX_INSERT_THREADS (uint64_t) 30
+#define MAX_N_THREADS (uint64_t) 30
+#define NUM_INDEX_LOAD_THREADS (uint64_t) 30
 #define PER_THREAD_BUF_SIZE (uint64_t)(65536 * 64 * 4)
 
 #define PQ_FLASH_INDEX_MAX_NODES_TO_CACHE 200000
@@ -168,9 +168,16 @@ namespace diskann {
         }
 
         if (((j % 100000) == 0) && (j > 0)) {
+          double   insert_time = std::accumulate(this->insert_times.begin(),
+                                         this->insert_times.end(), 0.0);
+          double   delta_time = std::accumulate(this->delta_times.begin(),
+                                        this->delta_times.end(), 0.0);
           diskann::cout << "Finished inserting " << j << " points" << std::endl;
           std::cout << "When j = " << j
                     << " elapsed time: " << timer.elapsed() / 1000000 << "s"
+                    << std::endl;
+          std::cout << "Insert time " << insert_time / 1000000
+                    << " Delta time: " << delta_time / 1000000 << "s"
                     << std::endl;
         }
         // data for jth point
@@ -207,13 +214,15 @@ namespace diskann {
     std::vector<Neighbor>         tmp;
     tsl::robin_map<uint32_t, T *> coord_map;
 
-    // std::cout << "TID: " << std::this_thread::get_id()
+    // std::cout << "TID: " << omp_get_thread_num()
     //          << " Before offset_iterate_to_Fixed_point()" << std::endl;
     // search on combined graph
     this->offset_iterate_to_fixed_point(mem_vec, this->l_index, pool,
                                         coord_map);
     insert_time = (float) timer.elapsed();
 
+    // std::cout << "TID: " << omp_get_thread_num()
+    //          << " Insert Time " << insert_time/1000 << std::endl;
     // prune neighbors using alpha
     std::vector<uint32_t> new_nhood;
     prune_neighbors(coord_map, pool, new_nhood);
@@ -237,11 +246,13 @@ namespace diskann {
       //delta->inter_insert(offset_id, new_nhood.data(), (_u32) new_nhood.size());
     }
     delta_time = (float) timer.elapsed();
+    // std::cout << "TID: " << omp_get_thread_num()
+    //          << " Delta Time " << delta_time/1000 << std::endl;
     // END: mem_vec now connected with new ID
     uint32_t thread_no = omp_get_thread_num();
     this->insert_times[thread_no] += insert_time;
     this->delta_times[thread_no] += delta_time;
-    // std::cout << "TID: " << std::this_thread::get_id()
+    // std::cout << "TID: " << thread_no
     //          << " Exiting insert_mem_vec() " << std::endl;
   }
 
@@ -932,7 +943,7 @@ namespace diskann {
 
     TagT *cur_tags;
 
-    size_t allocSize = npts * sizeof(TagT);
+    size_t allocSize = ROUND_UP(npts * sizeof(TagT), 8 * sizeof(TagT));
     alloc_aligned(((void **) &cur_tags), allocSize, 8 * sizeof(TagT));
 
     //TODO: We must detect holes in a better way. Currently, it is possible
