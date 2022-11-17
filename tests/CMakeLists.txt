@@ -88,5 +88,5 @@ add_executable(test_incr_intf test_incr_intf.cpp)
 endif()
 
 add_executable(overall_performance overall_performance.cpp)
-	target_link_libraries(overall_performance ${PROJECT_NAME} -ltcmalloc aio)
+	target_link_libraries(overall_performance ${PROJECT_NAME} aio)
 # formatter

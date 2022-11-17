@@ -37,7 +37,7 @@ namespace diskann {
     // copy nhood into graph[local_id], clear existing nbrs
     this->graph[local_id].clear();
     this->graph[local_id].insert(this->graph[local_id].end(), nhood, nhood + nnbrs);
-    this->graph[local_id].shrink_to_fit();
+    // this->graph[local_id].shrink_to_fit();
   }
 
   void GraphDelta::inter_insert(const uint32_t dest, const uint32_t* srcs, const uint32_t src_count){
@@ -50,11 +50,10 @@ namespace diskann {
 
       uint32_t local_src_id = srcs[i] - offset;
 
-      // acquire lock
       std::lock_guard<std::mutex> lock(this->locks[local_src_id]);
       // add src->dest edge
       this->graph[local_src_id].push_back(dest);
-      this->graph[local_src_id].shrink_to_fit();
+      // this->graph[local_src_id].shrink_to_fit();
     }
   }
   

@@ -25,9 +25,9 @@
 // max number of points per mem index being merged -- 32M
 #define MAX_PTS_PER_MEM_INDEX (uint64_t)(1 << 25)
 #define INDEX_OFFSET (uint64_t)(MAX_PTS_PER_MEM_INDEX * 4)
-#define MAX_INSERT_THREADS (uint64_t) 20
-#define MAX_N_THREADS (uint64_t) 20
-#define NUM_INDEX_LOAD_THREADS (uint64_t) 20
+#define MAX_INSERT_THREADS (uint64_t) 26
+#define MAX_N_THREADS (uint64_t) 26
+#define NUM_INDEX_LOAD_THREADS (uint64_t) 26
 #define PER_THREAD_BUF_SIZE (uint64_t)(65536 * 64 * 4)
 
 #define PQ_FLASH_INDEX_MAX_NODES_TO_CACHE 200000
@@ -168,17 +168,22 @@ namespace diskann {
         }
 
         if (((j % 100000) == 0) && (j > 0)) {
-          double   insert_time = std::accumulate(this->insert_times.begin(),
-                                         this->insert_times.end(), 0.0);
-          double   delta_time = std::accumulate(this->delta_times.begin(),
-                                        this->delta_times.end(), 0.0);
+          // double   insert_time = std::accumulate(this->insert_times.begin(),
+          //                                this->insert_times.end(), 0.0);
+          // double   delta_time = std::accumulate(this->delta_times.begin(),
+          //                               this->delta_times.end(), 0.0);
           diskann::cout << "Finished inserting " << j << " points" << std::endl;
           std::cout << "When j = " << j
                     << " elapsed time: " << timer.elapsed() / 1000000 << "s"
                     << std::endl;
-          std::cout << "Insert time " << insert_time / 1000000
-                    << " Delta time: " << delta_time / 1000000 << "s"
-                    << std::endl;
+          // std::cout << " Until Insert time " << insert_time / 1000000 << "s"
+          //           << " Until Delta time: " << delta_time / 1000000 << "s"
+          //           << std::endl;
+          // for (int t = 0; t < MAX_INSERT_THREADS; t++) {
+          //     std::cout << t << ": Insert time " <<  this->insert_times[t]/ 1000000 << "s"
+          //     << "Delta time: " << this->delta_times[t] / 1000000 << "s"
+          //     << std::endl;
+          // }
         }
         // data for jth point
         const T *j_coords =

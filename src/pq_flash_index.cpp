@@ -35,7 +35,7 @@
 #endif
 
 #define SECTOR_LEN 4096
-#define IO_LIMIT 40
+#define IO_LIMIT __INT_MAX__
 
 #define READ_U64(stream, val) stream.read((char *) &val, sizeof(_u64))
 #define READ_U32(stream, val) stream.read((char *) &val, sizeof(_u32))

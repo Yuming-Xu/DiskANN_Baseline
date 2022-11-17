@@ -28,8 +28,8 @@
 #include <unistd.h>
 #endif
 
-#define Merge_Size 1000000
-#define NUM_INSERT_THREADS 16
+#define Merge_Size 30000000
+#define NUM_INSERT_THREADS 4
 #define NUM_SEARCH_THREADS 10
 
 int            begin_time = 0;
@@ -49,27 +49,27 @@ void ShowMemoryStatus() {
 
   std::cout << "memory current time: " << current_time << " RSS : " << rss
             << " KB" << std::endl;
-  // char           dir[] = "/home/yuming/ssdfile/store_diskann_100m";
-  // DIR*           dp;
-  // struct dirent* entry;
-  // struct stat    statbuf;
-  // long           dir_size = 0;
+  char           dir[] = "/home/yuming/ssdfile_2/store_diskann_100m";
+  DIR*           dp;
+  struct dirent* entry;
+  struct stat    statbuf;
+  long           dir_size = 0;
 
-  // if ((dp = opendir(dir)) == NULL) {
-  //   fprintf(stderr, "Cannot open dir: %s\n", dir);
-  //   exit(0);
-  // }
+  if ((dp = opendir(dir)) == NULL) {
+    fprintf(stderr, "Cannot open dir: %s\n", dir);
+    exit(0);
+  }
 
-  // chdir(dir);
+  chdir(dir);
 
-  // while ((entry = readdir(dp)) != NULL) {
-  //   lstat(entry->d_name, &statbuf);
-  //   dir_size += statbuf.st_size;
-  // }
-  // chdir("..");
-  // closedir(dp);
-  // dir_size /= (1024 * 1024);
-  // std::cout << "disk usage : " << dir_size << " MB" << std::endl;
+  while ((entry = readdir(dp)) != NULL) {
+    lstat(entry->d_name, &statbuf);
+    dir_size += statbuf.st_size;
+  }
+  chdir("..");
+  closedir(dp);
+  dir_size /= (1024 * 1024);
+  std::cout << "disk usage : " << dir_size << " MB" << std::endl;
 }
 
 std::string convertFloatToString(const float value, const int precision = 0) {
@@ -172,8 +172,8 @@ void sync_search_kernel(T* query, size_t query_num, size_t query_aligned_dim,
     }
 
     // recall = diskann::calculate_recall(query_num, gt_ids, gt_dists, gt_dim,
-    //                                    query_result_tags, recall_at,
-    //                                    recall_at, inactive_tags);
+    //                                    query_result_tags, recall_at, recall_at,
+    //                                    inactive_tags);
   }
 
   int current_time = globalTimer.elapsed() / 1.0e6f - begin_time;
@@ -245,7 +245,7 @@ void update(const std::string& data_path, const unsigned L_mem,
   paras.Set<unsigned>("beamwidth", beam_width);
   // paras.Set<unsigned>("num_pq_chunks", num_pq_chunks);
   paras.Set<unsigned>("nodes_to_cache", 0);
-  paras.Set<unsigned>("num_search_threads", 32);
+  paras.Set<unsigned>("num_search_threads", 2);
 
   T*     data_load = NULL;
   size_t num_points, dim, aligned_dim;
@@ -377,10 +377,10 @@ void update(const std::string& data_path, const unsigned L_mem,
                          res, true, true);
     } else if (inMmeorySize >= Merge_Size) {
       std::cout << "Begin Merge" << std::endl;
-      // merge_future = std::async(std::launch::async, merge_kernel<T, TagT>,
-      //                           std::ref(sync_index), std::ref(save_path));
-      // std::this_thread::sleep_for(std::chrono::seconds(5));
-      merge_kernel<T, TagT>(sync_index, save_path);
+      merge_future = std::async(std::launch::async, merge_kernel<T, TagT>,
+                                std::ref(sync_index), std::ref(save_path));
+      std::this_thread::sleep_for(std::chrono::seconds(5));
+      // merge_kernel<T, TagT>(sync_index, save_path);
       std::cout << "Sending Merge" << std::endl;
       inMmeorySize = 0;
     }
