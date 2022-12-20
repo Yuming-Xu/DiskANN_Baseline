@@ -25,9 +25,9 @@
 // max number of points per mem index being merged -- 32M
 #define MAX_PTS_PER_MEM_INDEX (uint64_t)(1 << 25)
 #define INDEX_OFFSET (uint64_t)(MAX_PTS_PER_MEM_INDEX * 4)
-#define MAX_INSERT_THREADS (uint64_t) 26
-#define MAX_N_THREADS (uint64_t) 26
-#define NUM_INDEX_LOAD_THREADS (uint64_t) 26
+#define MAX_INSERT_THREADS (uint64_t) 20
+#define MAX_N_THREADS (uint64_t) 20
+#define NUM_INDEX_LOAD_THREADS (uint64_t) 20
 #define PER_THREAD_BUF_SIZE (uint64_t)(65536 * 64 * 4)
 
 #define PQ_FLASH_INDEX_MAX_NODES_TO_CACHE 200000

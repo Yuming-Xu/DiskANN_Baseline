@@ -241,18 +241,21 @@ namespace diskann {
     void MergeInsert<T,TagT>::search_sync(const T* query, const uint64_t K, const uint64_t search_L,
                      TagT* tags, float * distances, QueryStats * stats)
     {
+        auto diskSearchBegin = std::chrono::high_resolution_clock::now();
+        bool reachLimit = false;
         std::set<Neighbor_Tag<TagT>> best;
         //search disk index and get top K tags
+        //check each memory index - if non empty and not being currently cleared - search and get top K active tags 
         {
-        std::shared_lock<std::shared_timed_mutex> lock(_disk_lock);
-        assert(_switching_disk_prefixes == false);
+            std::shared_lock<std::shared_timed_mutex> lock(_disk_lock);
+            assert(_switching_disk_prefixes == false);
             std::vector<uint64_t> disk_result_ids_64(search_L);
             std::vector<float> disk_result_dists(search_L);
             std::vector<TagT> disk_result_tags(search_L);
-            _disk_index->cached_beam_search(
+            int searchNum = _disk_index->cached_beam_search(
                 query, search_L, search_L, disk_result_tags.data(), disk_result_dists.data(), _beamwidth,
                 stats);
-            for(unsigned i = 0; i < disk_result_tags.size(); i++)
+            for(unsigned i = 0; i < searchNum; i++)
             {
                 Neighbor_Tag<TagT> n;
                 n = Neighbor_Tag<TagT>(disk_result_tags[i], disk_result_dists[i]);
@@ -260,9 +263,15 @@ namespace diskann {
                 best.insert(n);                    
             }
         }
-        //check each memory index - if non empty and not being currently cleared - search and get top K active tags 
+
+        if (stats != nullptr && !reachLimit) {
+            auto diskSearchEnd = std::chrono::high_resolution_clock::now();
+            double elapsedSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(diskSearchEnd - diskSearchBegin).count();
+            if (elapsedSeconds >= stats->n_current_used) reachLimit = true;
+        }
+
         {
-            if(_clearing_index_0.load() == false) 
+            if(_clearing_index_0.load() == false && !reachLimit) 
             {
                 std::shared_lock<std::shared_timed_mutex> lock(_clear_lock_0);
                 if(_mem_index_0->get_num_points() > 0)
@@ -273,8 +282,14 @@ namespace diskann {
                         best.insert(iter);
                 }
             }
+
+            if (stats != nullptr) {
+                auto diskSearchEnd = std::chrono::high_resolution_clock::now();
+                double elapsedSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(diskSearchEnd - diskSearchBegin).count();
+                if (elapsedSeconds >= stats->n_current_used) reachLimit = true;
+            }
         
-            if(_clearing_index_1.load() == false) 
+            if(_clearing_index_1.load() == false && !reachLimit) 
             {
                 std::shared_lock<std::shared_timed_mutex> lock(_clear_lock_1);
                 if(_mem_index_1->get_num_points() > 0)
@@ -286,6 +301,7 @@ namespace diskann {
                 }
             }
         }
+
         std::vector<Neighbor_Tag<TagT>> best_vec;
         for(auto iter : best)
             best_vec.emplace_back(iter);

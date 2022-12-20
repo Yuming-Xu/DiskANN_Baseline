@@ -883,7 +883,7 @@ namespace diskann {
                                       expanded_nodes_info, &coord_map, stats);
     // fill in `indices`, `distances`
     _u64 res_count = 0;
-    for (uint32_t i = 0; i < l_search && res_count < k_search; i++) {
+    for (uint32_t i = 0; i < l_search && res_count < k_search && i < expanded_nodes_info.size(); i++) {
       if (this->num_frozen_points == 1 &&
           expanded_nodes_info[i].id == this->frozen_location)
         continue;
@@ -911,7 +911,7 @@ namespace diskann {
                                       expanded_nodes_info, nullptr, stats);
 
     _u64 res_count = 0;
-    for (uint32_t i = 0; i < l_search && res_count < k_search; i++) {
+    for (uint32_t i = 0; i < l_search && res_count < k_search && i < expanded_nodes_info.size(); i++) {
       if (this->num_frozen_points == 1 &&
           expanded_nodes_info[i].id == this->frozen_location) {
         continue;
@@ -937,7 +937,7 @@ namespace diskann {
       ThreadData<T> *           passthrough_data,
       tsl::robin_set<uint32_t> *exclude_nodes) {
     // only pull from sector scratch if ThreadData<T> not passed as arg
-
+    auto          diskSearchBegin = std::chrono::high_resolution_clock::now();
     ThreadData<T> data;
     if (passthrough_data == nullptr) {
       data = this->thread_data.pop();
@@ -1273,6 +1273,15 @@ namespace diskann {
         ++k;
 
       hops++;
+      if (stats != nullptr && stats->n_current_used != 0) {
+        auto   diskSearchEnd = std::chrono::high_resolution_clock::now();
+        double elapsedSeconds =
+            std::chrono::duration_cast<std::chrono::milliseconds>(diskSearchEnd -
+                                                             diskSearchBegin)
+                .count();
+        if (elapsedSeconds >= stats->n_current_used)
+          break;
+      }
     }
     // re-sort by distance
     std::sort(full_retset.begin(), full_retset.end(),

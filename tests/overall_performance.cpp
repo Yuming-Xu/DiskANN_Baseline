@@ -30,7 +30,7 @@
 
 #define Merge_Size 30000000
 #define NUM_INSERT_THREADS 4
-#define NUM_SEARCH_THREADS 10
+#define NUM_SEARCH_THREADS 16
 
 int            begin_time = 0;
 diskann::Timer globalTimer;
@@ -49,7 +49,7 @@ void ShowMemoryStatus() {
 
   std::cout << "memory current time: " << current_time << " RSS : " << rss
             << " KB" << std::endl;
-  char           dir[] = "/home/yuming/ssdfile_2/store_diskann_100m";
+  char           dir[] = "/home/yuming/ssdfile/store_diskann_100m_sift";
   DIR*           dp;
   struct dirent* entry;
   struct stat    statbuf;
@@ -132,7 +132,7 @@ void sync_search_kernel(T* query, size_t query_num, size_t query_aligned_dim,
   diskann::QueryStats* stats = new diskann::QueryStats[query_num];
   std::string          recall_string = "Recall@" + std::to_string(recall_at);
   std::cout << std::setw(4) << "Ls" << std::setw(12) << "QPS " << std::setw(18)
-            << "Mean Latency (ms)" << std::setw(12) << "90 Latency"
+            << "Mean Latency (ms)" << std::setw(12) << "50 Latency" << std::setw(12) << "90 Latency"
             << std::setw(12) << "95 Latency" << std::setw(12) << "99 Latency"
             << std::setw(12) << "99.9 Latency" << std::setw(12) << recall_string
             << std::setw(12) << "Mean disk IOs" << std::endl;
@@ -143,6 +143,7 @@ void sync_search_kernel(T* query, size_t query_num, size_t query_aligned_dim,
 #pragma omp parallel for num_threads(NUM_SEARCH_THREADS)
   for (int64_t i = 0; i < (int64_t) query_num; i++) {
     auto qs = std::chrono::high_resolution_clock::now();
+    stats[i].n_current_used = 8;
     sync_index.search_sync(query + i * query_aligned_dim, recall_at, L,
                            query_result_tags + i * recall_at,
                            query_result_dists + i * recall_at, stats + i);
@@ -172,8 +173,8 @@ void sync_search_kernel(T* query, size_t query_num, size_t query_aligned_dim,
     }
 
     // recall = diskann::calculate_recall(query_num, gt_ids, gt_dists, gt_dim,
-    //                                    query_result_tags, recall_at, recall_at,
-    //                                    inactive_tags);
+    //                                    query_result_tags, recall_at,
+    //                                    recall_at, inactive_tags);
   }
 
   int current_time = globalTimer.elapsed() / 1.0e6f - begin_time;
@@ -189,6 +190,8 @@ void sync_search_kernel(T* query, size_t query_num, size_t query_aligned_dim,
             << ((float) std::accumulate(latency_stats.begin(),
                                         latency_stats.end(), 0)) /
                    (float) query_num
+            << std::setw(12)
+            << (float) latency_stats[(_u64)(0.50 * ((double) query_num))]
             << std::setw(12)
             << (float) latency_stats[(_u64)(0.90 * ((double) query_num))]
             << std::setw(12)
@@ -245,7 +248,7 @@ void update(const std::string& data_path, const unsigned L_mem,
   paras.Set<unsigned>("beamwidth", beam_width);
   // paras.Set<unsigned>("num_pq_chunks", num_pq_chunks);
   paras.Set<unsigned>("nodes_to_cache", 0);
-  paras.Set<unsigned>("num_search_threads", 2);
+  paras.Set<unsigned>("num_search_threads", NUM_SEARCH_THREADS);
 
   T*     data_load = NULL;
   size_t num_points, dim, aligned_dim;
@@ -345,7 +348,7 @@ void update(const std::string& data_path, const unsigned L_mem,
                        true);
 
     if (i == batch - 1) {
-      std::cout << "Begin Merge" << std::endl;
+      std::cout << "Waiting For Merge" << std::endl;
       merge_future = std::async(std::launch::async, merge_kernel<T, TagT>,
                                 std::ref(sync_index), std::ref(save_path));
       std::future_status merge_status;
