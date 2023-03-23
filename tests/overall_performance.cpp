@@ -52,7 +52,7 @@ void ShowMemoryStatus() {
 
   std::cout << "memory current time: " << current_time << " RSS : " << rss
             << " KB" << std::endl;
-  char           dir[] = "/home/yuming/ssdfile/store_diskann_100m_sift";
+  char           dir[] = "/home/fresh/update_store/store_diskann_100m_sift";
   DIR*           dp;
   struct dirent* entry;
   struct stat    statbuf;
@@ -193,12 +193,12 @@ void sync_search_kernel(T* query, size_t query_num, size_t query_aligned_dim,
   if (calRecall) {
     if (merged) {
       std::string cur_result_path =
-          "/home/yuming/_" + std::to_string(current_time) + "merged.bin";
+          "/home/fresh/_" + std::to_string(current_time) + "merged.bin";
       save_bin_test<TagT>(cur_result_path, query_result_tags,
                           query_result_dists, query_num, recall_at);
     } else {
       std::string cur_result_path =
-          "/home/yuming/_" + std::to_string(current_time) + ".bin";
+          "/home/fresh/_" + std::to_string(current_time) + ".bin";
       save_bin_test<TagT>(cur_result_path, query_result_tags,
                           query_result_dists, query_num, recall_at);
     }
