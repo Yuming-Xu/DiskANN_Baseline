@@ -883,7 +883,9 @@ namespace diskann {
                                       expanded_nodes_info, &coord_map, stats);
     // fill in `indices`, `distances`
     _u64 res_count = 0;
-    for (uint32_t i = 0; i < l_search && res_count < k_search && i < expanded_nodes_info.size(); i++) {
+    for (uint32_t i = 0;
+         i < l_search && res_count < k_search && i < expanded_nodes_info.size();
+         i++) {
       if (this->num_frozen_points == 1 &&
           expanded_nodes_info[i].id == this->frozen_location)
         continue;
@@ -911,7 +913,9 @@ namespace diskann {
                                       expanded_nodes_info, nullptr, stats);
 
     _u64 res_count = 0;
-    for (uint32_t i = 0; i < l_search && res_count < k_search && i < expanded_nodes_info.size(); i++) {
+    for (uint32_t i = 0;
+         i < l_search && res_count < k_search && i < expanded_nodes_info.size();
+         i++) {
       if (this->num_frozen_points == 1 &&
           expanded_nodes_info[i].id == this->frozen_location) {
         continue;
@@ -1276,8 +1280,8 @@ namespace diskann {
       if (stats != nullptr && stats->n_current_used != 0) {
         auto   diskSearchEnd = std::chrono::high_resolution_clock::now();
         double elapsedSeconds =
-            std::chrono::duration_cast<std::chrono::milliseconds>(diskSearchEnd -
-                                                             diskSearchBegin)
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                diskSearchEnd - diskSearchBegin)
                 .count();
         if (elapsedSeconds >= stats->n_current_used)
           break;

@@ -2405,20 +2405,22 @@ namespace diskann {
     tsl::robin_set<unsigned> visited;
 
     {
-      std::shared_lock<std::shared_timed_mutex> lock(_tag_lock);
+      std::shared_lock<std::shared_timed_mutex> lock(_update_lock);
       std::shared_lock<std::shared_timed_mutex> tsl(_tag_lock);
       if (_enable_tags &&
           (_tag_to_location.find(tag) != _tag_to_location.end())) {
+        // std::cout << "Into Locking" << std::endl;
         // TODO! This is a repeat of lazy_delete, but we can't call
         // that function because we are taking many locks here. Hence
         // the repeated code.
         tsl.unlock();
-        std::unique_lock<std::shared_timed_mutex> tul(_tag_lock);
         std::unique_lock<std::shared_timed_mutex> tdl(_delete_lock);
+        std::unique_lock<std::shared_timed_mutex> tul(_tag_lock);
         _lazy_done = true;
         _delete_set.insert(_tag_to_location[tag]);
         _location_to_tag.erase(_tag_to_location[tag]);
         _tag_to_location.erase(tag);
+        // std::cout << "Out Locking" << std::endl;
       }
     }
 
