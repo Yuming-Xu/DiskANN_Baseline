@@ -493,32 +493,8 @@ void update(const std::string& data_path, const unsigned L_mem,
                        true);
 
     if (i == batch - 1) {
-      std::cout << "Waiting For Merge" << std::endl;
-      merge_future = std::async(std::launch::async, merge_kernel<T, TagT>,
-                                std::ref(sync_index), std::ref(save_path));
-      std::future_status merge_status;
-      total_queries = 0;
-      int second = 0;
-      do {
-        merge_status = merge_future.wait_for(std::chrono::seconds(10));
-        ShowMemoryStatus();
-        sync_search_kernel(query, query_num, query_aligned_dim, recall_at,
-                           Lsearch, sync_index, currentFileName, inactive_tags,
-                           res, false, false);
-        total_queries += query_num;
-        std::cout << "Queries processed: " << total_queries << std::endl;
-      } while (merge_status != std::future_status::ready);
-      std::cout << "Merge complete. Now searching..." << std::endl;
-
-      inMmeorySize = 0;
-
-      currentFileName.clear();
-
-      currentFileName = GetTruthFileName(truthset_file, res);
-
-      sync_search_kernel(query, query_num, query_aligned_dim, recall_at,
-                         Lsearch, sync_index, currentFileName, inactive_tags,
-                         res, i, true);
+      std::cout << "Done" << std::endl;
+      exit(0);
     } else if (inMmeorySize >= Merge_Size) {
       if (firstMerge) {
         firstMerge = false;
