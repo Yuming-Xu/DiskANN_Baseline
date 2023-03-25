@@ -704,12 +704,12 @@ namespace diskann {
     }
 
     // TODO (corner case) :: id_nhood might be empty in adversarial cases
-    if (id_nhood.empty()) {
-      diskann::cout << "Adversarial case -- all neighbors of node's neighbors "
-                       "deleted -- ID : "
-                    << id << "; exiting\n";
-      exit(-1);
-    }
+    // if (id_nhood.empty()) {
+    //   diskann::cout << "Adversarial case -- all neighbors of node's neighbors "
+    //                    "deleted -- ID : "
+    //                 << id << "; exiting\n";
+    //   exit(-1);
+    // }
 
     // compute PQ dists and shrink
     std::vector<float> id_nhood_dists(id_nhood.size(), 0.0f);
