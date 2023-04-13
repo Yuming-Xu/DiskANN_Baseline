@@ -397,7 +397,7 @@ void update(const std::string& data_path, const unsigned L_mem,
 
   diskann::Timer timer;
 
-  dim = 128;
+  dim = 100;
 
   // diskann::load_aligned_bin<T>(data_path.c_str(), data_load, num_points, dim,
   //                              aligned_dim);
