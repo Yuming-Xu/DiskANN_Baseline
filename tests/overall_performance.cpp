@@ -52,7 +52,7 @@ void ShowMemoryStatus() {
 
   std::cout << "memory current time: " << current_time << " RSS : " << rss
             << " KB" << std::endl;
-  char           dir[] = "/home/fresh/update_store/store_diskann_100m_sift";
+  char           dir[] = "/home/fresh/update_store/store_diskann_100m";
   DIR*           dp;
   struct dirent* entry;
   struct stat    statbuf;
