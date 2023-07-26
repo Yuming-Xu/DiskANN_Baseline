@@ -52,27 +52,27 @@ void ShowMemoryStatus() {
 
   std::cout << "memory current time: " << current_time << " RSS : " << rss
             << " KB" << std::endl;
-  char           dir[] = "/home/fresh/update_store/store_diskann_100m";
-  DIR*           dp;
-  struct dirent* entry;
-  struct stat    statbuf;
-  long           dir_size = 0;
+  // char           dir[] = "/home/fresh/update_store/store_diskann_100m";
+  // DIR*           dp;
+  // struct dirent* entry;
+  // struct stat    statbuf;
+  // long           dir_size = 0;
 
-  if ((dp = opendir(dir)) == NULL) {
-    fprintf(stderr, "Cannot open dir: %s\n", dir);
-    exit(0);
-  }
+  // if ((dp = opendir(dir)) == NULL) {
+  //   fprintf(stderr, "Cannot open dir: %s\n", dir);
+  //   exit(0);
+  // }
 
-  chdir(dir);
+  // chdir(dir);
 
-  while ((entry = readdir(dp)) != NULL) {
-    lstat(entry->d_name, &statbuf);
-    dir_size += statbuf.st_size;
-  }
-  chdir("..");
-  closedir(dp);
-  dir_size /= (1024 * 1024);
-  std::cout << "disk usage : " << dir_size << " MB" << std::endl;
+  // while ((entry = readdir(dp)) != NULL) {
+  //   lstat(entry->d_name, &statbuf);
+  //   dir_size += statbuf.st_size;
+  // }
+  // chdir("..");
+  // closedir(dp);
+  // dir_size /= (1024 * 1024);
+  // std::cout << "disk usage : " << dir_size << " MB" << std::endl;
 }
 
 std::string convertFloatToString(const float value, const int precision = 0) {
@@ -193,12 +193,12 @@ void sync_search_kernel(T* query, size_t query_num, size_t query_aligned_dim,
   if (calRecall) {
     if (merged) {
       std::string cur_result_path =
-          "/home/fresh/_" + std::to_string(current_time) + "merged.bin";
+          "/home/sosp/result_overall_spacev_diskann" + std::to_string(current_time) + "merged.bin";
       save_bin_test<TagT>(cur_result_path, query_result_tags,
                           query_result_dists, query_num, recall_at);
     } else {
       std::string cur_result_path =
-          "/home/fresh/_" + std::to_string(current_time) + ".bin";
+          "/home/sosp/result_overall_spacev_diskann" + std::to_string(current_time) + ".bin";
       save_bin_test<TagT>(cur_result_path, query_result_tags,
                           query_result_dists, query_num, recall_at);
     }
